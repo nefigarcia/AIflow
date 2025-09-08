@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Send } from 'lucide-react';
+import { sendContactEmailAction } from '@/app/actions';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
@@ -30,14 +31,22 @@ export default function Contact() {
     },
   });
 
-  function onSubmit(values: FormValues) {
-    // In a real application, you would send this data to a server.
-    console.log('Form submitted:', values);
-    toast({
-      title: 'Message Sent!',
-      description: "Thanks for reaching out. I'll get back to you shortly.",
-    });
-    form.reset();
+  async function onSubmit(values: FormValues) {
+    const response = await sendContactEmailAction(values);
+
+    if (response.success) {
+      toast({
+        title: 'Message Sent!',
+        description: "Thanks for reaching out. I'll get back to you shortly.",
+      });
+      form.reset();
+    } else {
+      toast({
+        variant: 'destructive',
+        title: 'Oh no! Something went wrong.',
+        description: response.error,
+      });
+    }
   }
 
   return (
@@ -96,7 +105,7 @@ export default function Contact() {
                 />
                 <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
                   <Send className="mr-2 h-4 w-4" />
-                  Send Message
+                  {form.formState.isSubmitting ? 'Sending...' : 'Send Message'}
                 </Button>
               </form>
             </Form>
