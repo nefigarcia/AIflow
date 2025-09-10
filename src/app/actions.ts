@@ -2,7 +2,6 @@
 
 import { agentBuilderTool, type AgentBuilderInput, type AgentBuilderOutput } from '@/ai/flows/agent-builder-tool';
 import nodemailer from 'nodemailer';
-import { google } from 'googleapis';
 
 export async function buildAgentAction(
   input: AgentBuilderInput
@@ -26,27 +25,45 @@ interface SendContactEmailInput {
   message: string;
 }
 
-const OAuth2 = google.auth.OAuth2;
+async function getAzureAdToken() {
+  const tenantId = process.env.OAUTH_TENANT_ID;
+  const clientId = process.env.OAUTH_CLIENT_ID;
+  const clientSecret = process.env.OAUTH_CLIENT_SECRET;
+  const refreshToken = process.env.OAUTH_REFRESH_TOKEN;
+
+  if (!tenantId || !clientId || !clientSecret || !refreshToken) {
+    throw new Error('Azure AD OAuth credentials are not fully configured in environment variables.');
+  }
+
+  const tokenEndpoint = `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`;
+
+  const params = new URLSearchParams();
+  params.append('client_id', clientId);
+  params.append('scope', 'https://outlook.office.com/.default');
+  params.append('refresh_token', refreshToken);
+  params.append('grant_type', 'refresh_token');
+  params.append('client_secret', clientSecret);
+
+  const response = await fetch(tokenEndpoint, {
+    method: 'POST',
+    body: params,
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    console.error('Failed to get Azure AD token:', data);
+    throw new Error(`Failed to create access token: ${data.error_description || 'Unknown error'}`);
+  }
+
+  return data.access_token;
+}
 
 async function createTransporter() {
-  const oauth2Client = new OAuth2(
-    process.env.OAUTH_CLIENT_ID,
-    process.env.OAUTH_CLIENT_SECRET,
-    'https://developers.google.com/oauthplayground'
-  );
-
-  oauth2Client.setCredentials({
-    refresh_token: process.env.OAUTH_REFRESH_TOKEN,
-  });
-
-  const accessToken = await new Promise((resolve, reject) => {
-    oauth2Client.getAccessToken((err, token) => {
-      if (err) {
-        reject('Failed to create access token.');
-      }
-      resolve(token);
-    });
-  });
+  const accessToken = await getAzureAdToken();
 
   const transporter = nodemailer.createTransport({
     service: 'hotmail',
@@ -56,7 +73,7 @@ async function createTransporter() {
       clientId: process.env.OAUTH_CLIENT_ID,
       clientSecret: process.env.OAUTH_CLIENT_SECRET,
       refreshToken: process.env.OAUTH_REFRESH_TOKEN,
-      accessToken: accessToken as string,
+      accessToken: accessToken,
     },
   });
 
