@@ -1,7 +1,6 @@
 'use server';
 
 import { agentBuilderTool, type AgentBuilderInput, type AgentBuilderOutput } from '@/ai/flows/agent-builder-tool';
-import nodemailer from 'nodemailer';
 
 export async function buildAgentAction(
   input: AgentBuilderInput
@@ -39,7 +38,7 @@ async function getAzureAdToken() {
 
   const params = new URLSearchParams();
   params.append('client_id', clientId);
-  params.append('scope', 'https://outlook.office.com/.default');
+  params.append('scope', 'https://graph.microsoft.com/.default');
   params.append('refresh_token', refreshToken);
   params.append('grant_type', 'refresh_token');
   params.append('client_secret', clientSecret);
@@ -62,22 +61,65 @@ async function getAzureAdToken() {
   return data.access_token;
 }
 
-async function createTransporter() {
-  const accessToken = await getAzureAdToken();
-
-  const transporter = nodemailer.createTransport({
-    service: 'hotmail',
-    auth: {
-      type: 'OAuth2',
-      user: process.env.OAUTH_USER,
-      clientId: process.env.OAUTH_CLIENT_ID,
-      clientSecret: process.env.OAUTH_CLIENT_SECRET,
-      refreshToken: process.env.OAUTH_REFRESH_TOKEN,
-      accessToken: accessToken,
+async function sendMailViaGraph(
+  accessToken: string,
+  subject: string,
+  bodyText: string,
+  toEmail: string,
+  replyToEmail?: string
+) {
+  const message = {
+    message: {
+      subject,
+      body: {
+        contentType: 'Text',
+        content: bodyText,
+      },
+      toRecipients: [
+        {
+          emailAddress: {
+            address: toEmail,
+          },
+        },
+      ],
+      ...(replyToEmail && {
+        replyTo: [
+          {
+            emailAddress: {
+              address: replyToEmail,
+            },
+          },
+        ],
+      }),
     },
+    saveToSentItems: true,
+  };
+
+
+   const response = await fetch('https://graph.microsoft.com/v1.0/me/sendMail', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(message),
   });
 
-  return transporter;
+  if (!response.ok) {
+    const text = await response.text(); // safer than response.json()
+    let errorMessage: string;
+
+    try {
+      const errorData = JSON.parse(text);
+      errorMessage = errorData.error?.message || 'Unknown error';
+      console.error('Graph API sendMail failed:', errorData);
+    } catch {
+      errorMessage = text || 'Unknown error (no body)';
+      console.error('Graph API sendMail failed with non-JSON body:', text);
+    }
+
+    throw new Error(`Failed to send email via Graph: ${errorMessage}`);
+  }
 }
 
 export async function sendContactEmailAction(
@@ -86,32 +128,24 @@ export async function sendContactEmailAction(
   const { name, email, message } = input;
 
   try {
-    const transporter = await createTransporter();
+     const accessToken = await getAzureAdToken();
 
     // Email to business owner
-    await transporter.sendMail({
-      from: `"${name}" <${process.env.OAUTH_USER}>`,
-      to: process.env.MY_EMAIL,
-      subject: `New Contact Form Submission from ${name}`,
-      text: message,
-      replyTo: email,
-    });
+    const subjectToBusiness = `New Contact Form Submission from ${name}`;
+    await sendMailViaGraph(accessToken, subjectToBusiness, message, process.env.MY_EMAIL!, email);
 
     // Confirmation email to user
-    await transporter.sendMail({
-      from: `"AgentFlow" <${process.env.OAUTH_USER}>`,
-      to: email,
-      subject: 'We have received your message!',
-      text: `Hi ${name},\n\nThanks for reaching out! An agent will be responding soon with all the specifications you requested.\n\nBest,\nThe AgentFlow Team`,
-      html: `<p>Hi ${name},</p><p>Thanks for reaching out! An agent will be responding soon with all the specifications you requested.</p><p>Best,<br>The AgentFlow Team</p>`,
-    });
+    const subjectToUser = 'We have received your message!';
+    const bodyToUser = `Hi ${name},\n\nThanks for reaching out! An agent will be responding soon with all the specifications you requested.\n\nBest,\nThe AgentFlow Team`;
+    await sendMailViaGraph(accessToken, subjectToUser, bodyToUser, email);
 
     return { success: true };
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error('Error sending email via Microsoft Graph:', error);
     return {
       success: false,
-      error: 'An unexpected error occurred while sending the message. Please check your OAuth credentials and try again later.',
+      error: 'An error occurred while sending the email. Please try again later or check your credentials.',
     };
   }
+  
 }
