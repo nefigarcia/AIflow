@@ -45,7 +45,7 @@ export default function ProblemSolution() {
               From Tedious to Automated
             </h2>
             <p className="max-w-[900px] text-foreground/80 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-              We tackle your biggest operational headaches by building smart AI agents that work for you 24/7.
+              We tackle your biggest operational headaches by building smart AI agents that work for you 24/7 and apps.
               Here's how we can transform your business.
             </p>
           </div>
