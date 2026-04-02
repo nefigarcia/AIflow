@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import AiDiagram from './AiDiagram';
+import ProductivityCalculator from './ProductivityCalculator';
 import { ArrowRight, TrendingDown, Zap, Shield } from 'lucide-react';
 
 const stats = [
@@ -47,7 +47,7 @@ export default function Hero() {
             </div>
           </div>
           <div className="flex items-center justify-center">
-            <AiDiagram />
+            <ProductivityCalculator />
           </div>
         </div>
       </div>
