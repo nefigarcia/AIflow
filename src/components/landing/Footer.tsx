@@ -1,20 +1,48 @@
-import { Hexagon } from 'lucide-react';
+import { BrainCircuit } from 'lucide-react';
 import Link from 'next/link';
+
+const links = [
+  { name: 'Solutions', href: '#solutions' },
+  { name: 'How It Works', href: '#how-it-works' },
+  { name: 'Industries', href: '#industries' },
+  { name: 'About', href: '#about' },
+  { name: 'Contact', href: '#contact' },
+  { name: 'Privacy Policy', href: '/privacy-policy' },
+];
 
 export default function Footer() {
   return (
-    <footer className="border-t">
-      <div className="container flex flex-col items-center justify-between gap-4 py-10 md:h-24 md:flex-row md:py-0">
-        <div className="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
-          <Hexagon className="h-6 w-6 text-primary" />
-          <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
-            © {new Date().getFullYear()} AgentFlow. All Rights Reserved.
-          </p>
+    <footer className="border-t bg-secondary/30">
+      <div className="container px-4 md:px-6 py-10">
+        <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
+          <div className="flex flex-col gap-2 max-w-xs">
+            <div className="flex items-center gap-2">
+              <BrainCircuit className="h-5 w-5 text-primary" />
+              <span className="font-bold text-lg">AIflow</span>
+            </div>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              AI process integration specialists. We embed intelligent systems into your existing workflows to reduce costs and scale operations.
+            </p>
+          </div>
+          <nav className="flex flex-wrap gap-x-6 gap-y-2">
+            {links.map((link) => (
+              <Link
+                key={link.name}
+                href={link.href}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {link.name}
+              </Link>
+            ))}
+          </nav>
         </div>
-        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-          <Link href="#solutions" className="hover:text-foreground">Solutions</Link>
-          <Link href="#pricing" className="hover:text-foreground">Pricing</Link>
-          <Link href="#about" className="hover:text-foreground">About</Link>
+        <div className="mt-8 border-t border-border/50 pt-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-xs text-muted-foreground">
+            © {new Date().getFullYear()} AIflow. All Rights Reserved.
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Built to integrate. Designed to last.
+          </p>
         </div>
       </div>
     </footer>

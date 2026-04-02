@@ -1,8 +1,9 @@
 import Header from '@/components/landing/Header';
 import Hero from '@/components/landing/Hero';
 import ProblemSolution from '@/components/landing/ProblemSolution';
+import HowItWorks from '@/components/landing/HowItWorks';
+import Industries from '@/components/landing/Industries';
 import AgentBuilder from '@/components/landing/AgentBuilder';
-import Pricing from '@/components/landing/Pricing';
 import Testimonials from '@/components/landing/Testimonials';
 import About from '@/components/landing/About';
 import Contact from '@/components/landing/Contact';
@@ -15,8 +16,9 @@ export default function Home() {
       <main className="flex-1">
         <Hero />
         <ProblemSolution />
+        <HowItWorks />
+        <Industries />
         <AgentBuilder />
-        <Pricing />
         <Testimonials />
         <About />
         <Contact />

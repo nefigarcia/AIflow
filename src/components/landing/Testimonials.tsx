@@ -1,28 +1,28 @@
-import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Quote } from 'lucide-react';
 
 const testimonials = [
   {
-    quote: "Working with AgentFlow was a game-changer. We automated our entire lead qualification process in under two weeks. The agility and expertise are unmatched by any large firm we've worked with.",
-    name: 'Jane Doe',
-    title: 'CEO, Innovate Inc.',
-    image: 'https://picsum.photos/100/100',
-    aiHint: 'person portrait',
+    quote: "We were spending 60 hours a month manually reconciling invoices across three systems. AIflow built a pipeline that automated the entire process in two weeks. We reallocated that time to actual financial analysis — the ROI was immediate.",
+    name: 'Sarah M.',
+    title: 'CFO, Mid-Size Distribution Company',
+    initials: 'SM',
+    metric: '60 hrs/mo saved',
   },
   {
-    quote: "The bureaucracy at big AI companies was killing our momentum. AgentFlow delivered a powerful data analysis agent that provides daily insights, all with zero administrative hassle. It just works.",
-    name: 'John Smith',
-    title: 'Marketing Director, Growth Co.',
-    image: 'https://picsum.photos/101/101',
-    aiHint: 'person portrait',
+    quote: "Our sales team was drowning in lead data with no way to prioritize. AIflow built a qualification agent that scores and routes leads in real time based on our CRM data. Our conversion rate went up 28% in the first quarter.",
+    name: 'Daniel R.',
+    title: 'VP of Sales, B2B SaaS Company',
+    initials: 'DR',
+    metric: '+28% conversion rate',
   },
   {
-    quote: "I was skeptical about how much a solo engineer could do, but the results speak for themselves. Our operational costs are down 30% thanks to a custom agent that manages our inventory. Highly recommended.",
-    name: 'Emily White',
-    title: 'Founder, Retail Startup',
-    image: 'https://picsum.photos/102/102',
-    aiHint: 'person portrait',
+    quote: "What impressed me most was how they integrated into our existing tools without disrupting anything. They built an AI that monitors our supply chain data and flags issues before they become problems. Operations feels completely different now.",
+    name: 'Patricia L.',
+    title: 'Head of Operations, E-commerce Retailer',
+    initials: 'PL',
+    metric: '35% fewer escalations',
   },
 ];
 
@@ -30,31 +30,37 @@ export default function Testimonials() {
   return (
     <section id="testimonials" className="w-full py-20 md:py-24 lg:py-32 bg-background">
       <div className="container px-4 md:px-6">
-        <div className="flex flex-col items-center justify-center space-y-4 text-center">
-          <div className="space-y-2">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">
-              Trusted by Innovators
-            </h2>
-            <p className="max-w-[900px] text-foreground/80 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-              Don't just take our word for it. Here's what our clients have to say about their experience.
-            </p>
-          </div>
+        <div className="flex flex-col items-center justify-center space-y-4 text-center mb-14">
+          <div className="inline-block rounded-lg bg-muted px-3 py-1 text-sm font-medium">Client Results</div>
+          <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">
+            Real Impact. Measurable Results.
+          </h2>
+          <p className="max-w-[700px] text-foreground/70 md:text-xl/relaxed">
+            We measure success by what changes in your operations — time saved, costs reduced, and processes that run themselves.
+          </p>
         </div>
-        <div className="mx-auto grid max-w-sm items-start gap-8 pt-12 sm:max-w-4xl sm:grid-cols-2 lg:max-w-none lg:grid-cols-3">
+        <div className="mx-auto grid max-w-sm items-start gap-6 pt-4 sm:max-w-4xl sm:grid-cols-2 lg:max-w-none lg:grid-cols-3">
           {testimonials.map((testimonial) => (
-            <Card key={testimonial.name} className="flex flex-col">
-              <CardContent className="p-6 flex-1 flex flex-col justify-between">
-                <blockquote className="text-lg font-semibold leading-snug">
-                  “{testimonial.quote}”
-                </blockquote>
-                <div className="mt-6 flex items-center gap-4">
-                  <Avatar>
-                    <AvatarImage src={testimonial.image} alt={testimonial.name} data-ai-hint={testimonial.aiHint} width={100} height={100} />
-                    <AvatarFallback>{testimonial.name.charAt(0)}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-semibold">{testimonial.name}</p>
-                    <p className="text-sm text-muted-foreground">{testimonial.title}</p>
+            <Card key={testimonial.name} className="flex flex-col border-border/60 hover:border-primary/30 hover:shadow-md transition-all duration-200">
+              <CardContent className="p-6 flex-1 flex flex-col justify-between gap-6">
+                <div className="space-y-4">
+                  <Quote className="h-6 w-6 text-primary/40" />
+                  <blockquote className="text-sm leading-relaxed text-foreground/80">
+                    "{testimonial.quote}"
+                  </blockquote>
+                </div>
+                <div className="space-y-3">
+                  <div className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                    {testimonial.metric}
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-9 w-9">
+                      <AvatarFallback className="text-xs bg-muted font-semibold">{testimonial.initials}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="text-sm font-semibold">{testimonial.name}</p>
+                      <p className="text-xs text-muted-foreground">{testimonial.title}</p>
+                    </div>
                   </div>
                 </div>
               </CardContent>

@@ -4,8 +4,8 @@ import { Toaster } from '@/components/ui/toaster';
 import { Analytics } from '@vercel/analytics/react';
 
 export const metadata: Metadata = {
-  title: 'AgentFlow | Custom AI Agents for Your Business',
-  description: 'Build & Implement Custom AI Agents. Fast, Affordable, No Bureaucracy.',
+  title: 'AIflow | AI Process Integration for Your Business',
+  description: 'We embed AI directly into your existing business processes — custom pipelines, agents, and automations that reduce costs and scale operations without disruption.',
 };
 
 export default function RootLayout({
