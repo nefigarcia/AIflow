@@ -2,15 +2,37 @@
 
 import { agentBuilderTool, type AgentBuilderInput, type AgentBuilderOutput } from '@/ai/flows/agent-builder-tool';
 
+const RETRY_DELAYS_MS = [1000, 2000];
+
+function is503Error(error: unknown): boolean {
+  const msg = error instanceof Error ? error.message : String(error);
+  return msg.includes('503') || msg.toUpperCase().includes('UNAVAILABLE');
+}
+
+async function withRetry<T>(fn: () => Promise<T>): Promise<T> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt <= RETRY_DELAYS_MS.length; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error;
+      const delayMs = RETRY_DELAYS_MS[attempt];
+      if (!is503Error(error) || delayMs === undefined) throw error;
+      console.warn(`Gemini 503 on attempt ${attempt + 1}, retrying in ${delayMs}ms…`);
+      await new Promise(resolve => setTimeout(resolve, delayMs));
+    }
+  }
+  throw lastError;
+}
+
 export async function buildAgentAction(
   input: AgentBuilderInput
 ): Promise<{ success: true; data: AgentBuilderOutput } | { success: false; error: string }> {
   try {
-    const result = await agentBuilderTool(input);
+    const result = await withRetry(() => agentBuilderTool(input));
     return { success: true, data: result };
   } catch (error) {
     console.error('Error in buildAgentAction:', error);
-    // The provided AI flow might have issues. We return a user-friendly message.
     return {
       success: false,
       error: 'An unexpected error occurred while building the agent. The AI model may be temporarily unavailable. Please try again later.',
