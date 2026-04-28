@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowRight, Clock, MessageSquare, Shield } from 'lucide-react';
+import { ArrowRight, Clock, MessageSquare, Phone, Shield } from 'lucide-react';
 import { sendContactEmailAction } from '@/app/actions';
 
 const formSchema = z.object({
@@ -40,6 +40,7 @@ const trustItems = [
   { icon: Clock, text: 'Response within 24 hours' },
   { icon: MessageSquare, text: 'No-pressure discovery call' },
   { icon: Shield, text: 'NDA available on request' },
+  { icon: Phone, text: 'Call or text us: (828) 827-3145', href: 'tel:+18288273145' },
 ];
 
 export default function Contact() {
@@ -91,12 +92,16 @@ export default function Contact() {
               Tell us about your business and the processes slowing you down. We'll assess the AI integration opportunities in your workflow and walk you through what's possible — no commitment required.
             </p>
             <div className="space-y-4 pt-2">
-              {trustItems.map(({ icon: Icon, text }) => (
+              {trustItems.map(({ icon: Icon, text, href }) => (
                 <div key={text} className="flex items-center gap-3 text-sm text-foreground/70">
                   <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 flex-shrink-0">
                     <Icon className="h-4 w-4 text-primary" />
                   </div>
-                  {text}
+                  {href ? (
+                    <a href={href} className="hover:text-primary transition-colors font-medium">{text}</a>
+                  ) : (
+                    text
+                  )}
                 </div>
               ))}
             </div>
